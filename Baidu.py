@@ -16,7 +16,10 @@ def getImageUrlFromScript(script):
 def getImageUrlList(url):
   print url
   imglist = []
-  for i in _getJsonList(url):
+  jsonlist = _getJsonList(url)
+  if jsonlist == None:
+    return []
+  for i in jsonlist:
     imglist.append(i['objURL'].strip())
   return imglist
 # def bruteGetList(url):
@@ -27,6 +30,8 @@ def getImageUrlList(url):
 
 def _getJsonList(url):
   stream = getStream(url)
+  if stream == None:
+    return None
   data = getCodingContent(stream)
   # start=data.index('var imgTempData')
   # end=data[start:].index(';')
@@ -36,8 +41,12 @@ def _getJsonList(url):
   # f=open('debug.txt','w')
   # f.write(data.encode('utf8'))
   # f.close()
-  jsonlist = json.loads(block)
-  return jsonlist['data'][:-1]
+  try:
+	  jsonlist = json.loads(block)
+	  return jsonlist['data'][:-1]
+  except:
+	  return None
+
 
 def nextPage(url, pn):
   url_pn = cutBegin(url, '&pn=')

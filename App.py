@@ -29,15 +29,21 @@ def main():
   # 没有搜索结果时退出
   if not count:
     print "No search result at current condition."
-    sys.exit(1)
+    return -1
   # 获得指定数量的url, 存放于list  
   print 'Fetching page',
   while len(imglist) < count:
     print while_n,
     while_n += 1
     tmplist = getImageUrlList(URL)
-    imglist = imglist + tmplist
-    URL = nextPage(URL, len(tmplist))
+    if len(tmplist) == 0:
+      print "No search result."
+      return -1
+    if(len(tmplist)+len(imglist) > count):
+      imglist = imglist + tmplist[:count-len(imglist)]
+    else:
+      imglist = imglist + tmplist
+      URL = nextPage(URL, len(tmplist))
   print '' # 换行
   count = len(imglist)
   print "There're %d files to download" % count
@@ -56,6 +62,7 @@ def main():
                                          queue, failure, Config.directory, Config.timeout))
   queue.join()
   print "%d failed to fetch." % len(failure)
+  return 0
 
 def clean():
   # 清理

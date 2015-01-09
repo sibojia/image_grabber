@@ -4,14 +4,14 @@ from FileHelper import getFilenameFromURL, writeBinFile
 import urllib2
 
 def getStream(url, timeout=10):
-  # 返回一个url流或者False
+  # 返回一个url流或者None
   request = urllib2.Request(url)
   request.add_header('User-Agent', UserAgent.Mozilla)
   try:
     stream = urllib2.urlopen(request, timeout=timeout)
   except (Exception, SystemExit): # catch SystemExit to keep running
     print "URL open error. Probably timed out."
-    return False
+    return None
   return stream
 
 def downloadFromQueue(queue, failure, directory='.', timeout=10):
@@ -21,11 +21,13 @@ def downloadFromQueue(queue, failure, directory='.', timeout=10):
     url = queue.get()
     stream = getStream(url, timeout=timeout)
     file_name = getFilenameFromURL(url)
-    if stream and writeBinFile(stream, file_name, directory):
-      queue.task_done()
-      print "Fetching", url, 'done.'
-      continue
-    failure.append(url)
+    try:
+        if stream and writeBinFile(stream, file_name, directory):
+          print "Fetching", url, 'done.'
+        else:
+          failure.append(url)
+    except:
+        failure.append(url)
     queue.task_done()
   return failure
 
