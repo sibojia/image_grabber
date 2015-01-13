@@ -10,7 +10,7 @@ def getStream(url, timeout=10):
   try:
     stream = urllib2.urlopen(request, timeout=timeout)
   except (Exception, SystemExit): # catch SystemExit to keep running
-    print "URL open error. Probably timed out."
+    print "URL open error. Probably timed out.", url
     return None
   return stream
 

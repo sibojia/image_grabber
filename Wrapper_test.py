@@ -2,8 +2,9 @@
 # -*- coding:utf-8 -*-
 import App
 
-App.Config.keyword='フユチ'
-App.Config.directory = r'test'
+App.Config.keyword=u'夏天'
+App.Config.directory = r'test2'
+App.Config.site = 'baidu'
 App.Config.count = 50
 
 App.main()

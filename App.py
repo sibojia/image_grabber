@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding:utf-8 -*-
-from Baidu import getImageUrlList, search, nextPage, searchResult
+# from Baidu import getImageUrlList, search, nextPage, searchResult
+import Baidu, BingCN
 from Downloader import downloadFromQueue
 from FileHelper import getFilenameFromURL, addExtension, makedir
 from Queue import Queue
@@ -10,25 +11,29 @@ from NetworkPrepare import prepare
 import os, sys
 import traceback
 
-def baseURL():
+def site_config():
   if Config.site == 'baidu':
-    return search(Config.keyword, Config.addtional)
-  if Config.site == 'jandan':
-    return 'http://jandan.net/ooxx'
+    return Baidu
+  if Config.site == 'bing_cn':
+    return BingCN
+  else:
+    print 'Unsupported site. Exiting.'
+    sys.exit(-1)
 
 def main():
   try:
     # 开始准备
     prepare()
+    SiteTool = site_config()
     while_n = 0 # 循环计数器
     imglist = []
     makedir(Config.directory)
     print 'Generate search url',
-    URL = baseURL()
+    URL = SiteTool.search(Config.keyword, Config.addtional)
     print URL
     # 下载 #############
     # 获取搜索结果数量并与_count比较取其较小值
-    count = min(searchResult(URL), Config.count)
+    count = min(SiteTool.searchResult(URL), Config.count)
     # 没有搜索结果时退出
     if not count:
       print "No search result at current condition."
@@ -38,15 +43,15 @@ def main():
     while len(imglist) < count:
       print while_n,
       while_n += 1
-      tmplist = getImageUrlList(URL)
+      tmplist = SiteTool.getImageUrlList(URL)
       if len(tmplist) == 0:
-	print "getImageUrlList error."
-	return -1
+      	print "getImageUrlList error."
+      	return -1
       if(len(tmplist)+len(imglist) > count):
-	imglist = imglist + tmplist[:count-len(imglist)]
+        imglist = imglist + tmplist[:count-len(imglist)]
       else:
-	imglist = imglist + tmplist
-	URL = nextPage(URL, len(tmplist))
+      	imglist = imglist + tmplist
+      	URL = SiteTool.nextPage(URL, len(tmplist))
     print '' # 换行
     count = len(imglist)
     print "There're %d files to download" % count
