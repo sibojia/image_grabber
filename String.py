@@ -20,6 +20,8 @@ def getCodingContent(stream):
   # 获取stream的编码
   """Return a string in which is the content of given url.
   return - content : unicode string"""
+  if stream == None:
+	  return ''
   content = stream.read()
   coding = determinCoding(content, stream.headers)
   stream.close()

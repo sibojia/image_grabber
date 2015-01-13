@@ -14,7 +14,6 @@ def getImageUrlFromScript(script):
   return new_group
 
 def getImageUrlList(url):
-  print url
   imglist = []
   jsonlist = _getJsonList(url)
   if jsonlist == None:
@@ -38,13 +37,14 @@ def _getJsonList(url):
   # block=data[start+18:start+end]
   pattern = re.compile(r'(?<=var imgdata =).*?}(?=;var)')
   block = pattern.findall(data)[0]
-  # f=open('debug.txt','w')
-  # f.write(data.encode('utf8'))
-  # f.close()
   try:
 	  jsonlist = json.loads(block)
 	  return jsonlist['data'][:-1]
   except:
+	  print 'json load error. write to debug.txt'
+	  f=open('debug.txt','w')
+	  f.write(data.encode('utf8'))
+	  f.close()
 	  return None
 
 
@@ -62,7 +62,7 @@ def search(keyword, addtionParams={}):
   parser = MyParser()
   params = _getParams('http://image.baidu.com', parser)
   params.update(addtionParams)
-  params.update({'word':keyword.decode('utf8').encode('gbk'),'tn': 'result_pageturn'})
+  params.update({'word':keyword.encode('utf8'),'tn': 'result_pageturn'})
   return url + urlencode(params)
 
 def searchResult(url):
