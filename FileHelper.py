@@ -17,8 +17,9 @@ def addExtension(fname, ext):
 def rename(old, ext):
   # ext='.jpg'
   if os.path.isfile(old + ext):
-    ext = '2' + ext
-    rename(old, ext)
+    # ext = '2' + ext
+    # rename(old, ext)
+    os.remove(old)
     return None
   print 'rename', old, old + ext
   os.rename(old, old + ext)

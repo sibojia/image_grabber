@@ -10,22 +10,27 @@ import re
 def getImageUrlFromScript(script):
   pattern = re.compile(r'(?<="objURL":").*?(?=")')
   groups = pattern.findall(script)
+  if len(groups[0]) == 0:
+    return []
   new_group = [amatch.strip() for amatch in groups] # 更Pythonic的方式
   return new_group
 
+
 def getImageUrlList(url):
   imglist = []
-  jsonlist = _getJsonList(url)
-  if jsonlist == None:
+  stream = getStream(url)
+  if stream == None:
     return []
-  for i in jsonlist:
-    imglist.append(i['objURL'].strip())
-  return imglist
-# def bruteGetList(url):
-#   stream = getStream(url)
-#   data = getCodingContent(stream)
-#   pattern = re.compile(r'(?<=objURL=).*?(?=&)')
-#   return pattern.findall(data)[0]
+  data = getCodingContent(stream)
+  pattern = re.compile(r'(?<=var imgdata =).*?}(?=;var)')
+  block = pattern.findall(data)[0]
+  return getImageUrlFromScript(block)
+  # jsonlist = _getJsonList(url)
+  # if jsonlist == None:
+  #   return []
+  # for i in jsonlist:
+  #   imglist.append(i['objURL'].strip())
+  # return imglist
 
 def _getJsonList(url):
   stream = getStream(url)
@@ -40,10 +45,10 @@ def _getJsonList(url):
   try:
 	  jsonlist = json.loads(block)
 	  return jsonlist['data'][:-1]
-  except:
-	  print 'json load error. write to debug.txt'
+  except Exception, e:
+	  print 'json load error. write to debug.txt', e
 	  f=open('debug.txt','w')
-	  f.write(data.encode('utf8'))
+	  f.write(block.encode('gbk'))
 	  f.close()
 	  return None
 
